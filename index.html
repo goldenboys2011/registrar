@@ -3,40 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration</title>
-    <meta property="og:url" content="https://registrar.3feds.lol" />
-    <meta property="og:title" content="Registrar" />
-    <meta property="og:description" content="Registrar for WebX" />
-    <link rel="icon" href="favicon. ico" type="image/x-icon"/>
+    <title>Registration and Deletion</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
         .container {
-            max-width: 500px;
-            margin: auto;
+            max-width: 600px;
+            margin: 50px auto;
             padding: 20px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         label {
             display: block;
+            font-size: 16px;
+            color: #555;
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="submit"] {
-            width: 100%;
-            padding: 8px;
+        input[type="text"], input[type="submit"], button {
+            width: calc(100% - 16px);
+            padding: 12px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            color: #444;
+            margin-top: 5px;
+        }
+        input[type="submit"], button {
+            cursor: pointer;
+            background-color: #4caf50;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover, button:hover {
+            background-color: #45a049;
         }
         .error {
-            color: red;
+            color: #d9534f;
+            margin-top: 5px;
         }
         .success {
-            color: green;
+            color: #5cb85c;
+            margin-top: 5px;
+        }
+        #message, #deleteMessage {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -47,24 +75,32 @@
     <form id="registrationForm">
         <div class="form-group">
             <label for="key">Key:</label>
-            <input type="text" id="key" name="key">
+            <input type="text" id="key" name="key" required>
         </div>
         <div class="form-group">
             <label for="tld">TLD:</label>
-            <input type="text" id="tld" name="tld">
+            <input type="text" id="tld" name="tld" required>
         </div>
         <div class="form-group">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name">
+            <input type="text" id="name" name="name" required>
         </div>
         <div class="form-group">
             <label for="ip">IP:</label>
-            <input type="text" id="ip" name="ip">
+            <input type="text" id="ip" name="ip" required>
         </div>
         <input type="submit" value="Register">
-        <div id="message"></div>
+        <div id="message" class="error"></div>
         <div id="secretKey" class="success"></div>
     </form>
+    
+    <h2>Delete Domain</h2>
+    <div class="form-group">
+        <label for="deleteKey">Key:</label>
+        <input type="text" id="deleteKey" name="deleteKey" required>
+    </div>
+    <button id="deleteButton">Delete Domain</button>
+    <div id="deleteMessage" class="error"></div>
 </div>
 
 <script>
@@ -80,7 +116,7 @@
         messageDiv.textContent = '';
         secretKeyDiv.textContent = '';
 
-        const response = await fetch('https://regapi.ritza-bit4545.workers.dev/register', {
+        const response = await fetch('/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -93,14 +129,54 @@
             })
         });
 
+        if (response.ok) {
+            const responseData = await response.json();
+            secretKeyDiv.textContent = 'Secret Key: ' + responseData.secret_key;
+            secretKeyDiv.className = 'success';
+            console.log('Secret Key:', responseData.secret_key);
+        } else {
+            const responseData = await response.text();
+            if (response.status === 400) {
+                messageDiv.textContent = responseData;
+                messageDiv.className = 'error';
+            } else if (response.status === 409) {
+                messageDiv.textContent = "Domain already exists";
+                messageDiv.className = 'error';
+            } else {
+                messageDiv.textContent = responseData;
+                messageDiv.className = 'error';
+            }
+        }
+    });
+    
+    document.getElementById('deleteButton').addEventListener('click', async function(event) {
+        event.preventDefault();
+        const key = document.getElementById('deleteKey').value;
+        const deleteMessageDiv = document.getElementById('deleteMessage');
+
+        deleteMessageDiv.textContent = '';
+
+        const response = await fetch('/delete-domain', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                key
+            })
+        });
+
         const responseData = await response.json();
 
         if (response.ok) {
-            secretKeyDiv.textContent = 'Secret Key: ' + responseData.secret_key;
-            console.log('Secret Key:', responseData.secret_key);
+            deleteMessageDiv.textContent = responseData.message;
+            deleteMessageDiv.className = 'success';
+        } else if (response.status === 404) {
+            deleteMessageDiv.textContent = 'Invalid key';
+            deleteMessageDiv.className = 'error';
         } else {
-            messageDiv.textContent = responseData.message;
-            messageDiv.className = 'error';
+            deleteMessageDiv.textContent = responseData.message;
+            deleteMessageDiv.className = 'error';
         }
     });
 </script>
