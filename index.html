@@ -336,7 +336,14 @@
                     const registerButton = document.createElement("button");
                     registerButton.textContent = "Register";
                     registerButton.onclick = function() {
-                        openLogin(true, domain)
+                        // openLogin(true, domain)
+                        modal.style.display = "block";
+                        registerButton.remove();
+                        regBtn.onclick = function() {
+                            const [name, tld] = splitDomain(domain);
+                            const ip = ipInput.value;
+                            registerDomain(name, tld, ip);
+                        };
                     };
                     resultDiv.appendChild(registerButton);
                 }
