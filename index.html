@@ -2,184 +2,376 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration and Deletion</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <title>Domain Registration</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
             padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
             background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        h2 {
+	.borderdiv {
+	    border-style: inset;
+	    border-radius: 5px;
+	}
+	div {
+            text-align: center;
             color: #333;
-            font-weight: bold;
-            font-size: 24px;
-            margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 20px;
+
+        h1 {
+            text-align: center;
+            color: #333;
         }
-        label {
-            display: block;
-            font-size: 16px;
-            color: #555;
-            margin-bottom: 5px;
+
+        form {
+            text-align: center;
         }
-        input[type="text"], input[type="submit"], button {
-            width: calc(100% - 16px);
-            padding: 12px;
-            box-sizing: border-box;
+
+        input {
+            padding: 8px;
+            width: 200px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
-            color: #444;
-            margin-top: 5px;
         }
-        input[type="submit"], button {
+
+        button {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            background-color: #4caf50;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #alternativeTlds {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #alternativeTlds h3 {
+            margin-bottom: 10px;
+        }
+
+        .available-domain {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 50%;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .available-domain:hover {
+            background-color: #4CAF50;
             color: #fff;
-            transition: background-color 0.3s;
-        }
-        input[type="submit"]:hover, button:hover {
-            background-color: #45a049;
-        }
-        .error {
-            color: #d9534f;
-            margin-top: 5px;
-        }
-        .success {
-            color: #5cb85c;
-            margin-top: 5px;
-        }
-        #message, #deleteMessage {
-            margin-top: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>Register</h2>
-    <form id="registrationForm">
-        <div class="form-group">
-            <label for="key">Key:</label>
-            <input type="text" id="key" name="key" required>
-        </div>
-        <div class="form-group">
-            <label for="tld">TLD:</label>
-            <input type="text" id="tld" name="tld" required>
-        </div>
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
-        <div class="form-group">
-            <label for="ip">IP:</label>
-            <input type="text" id="ip" name="ip" required>
-        </div>
-        <input type="submit" value="Register">
-        <div id="message" class="error"></div>
-        <div id="secretKey" class="success"></div>
-    </form>
-    
-    <h2>Delete Domain</h2>
-    <div class="form-group">
-        <label for="deleteKey">Key:</label>
-        <input type="text" id="deleteKey" name="deleteKey" required>
+    <div class="container">
+        <h1>Domain Registration</h1>
+        <form>
+            <input id="doavIn" placeholder="Enter domain name">
+            <button id="doavCheck" type="button">Check Availability</button>
+            <h3 id="secretres"></h3>
+        </form>
+        <div id="result" class=available-domain"></div>
+        <div id="alternativeTlds"></div>
     </div>
-    <button id="deleteButton">Delete Domain</button>
-    <div id="deleteMessage" class="error"></div>
-</div>
+    <div class="container">
+        <h1>Domain Deleter</h1>
+        <form>
+            <input id="secretIn" placeholder="Enter domain key">
+            <button id="domDel" type="button" disabled>Delete Domain</button>
+        </form>
+        <div id="Delresult" ></div>
+    </div>
 
-<script>
-    document.getElementById('registrationForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const key = document.getElementById('key').value;
-        const tld = document.getElementById('tld').value;
-        const name = document.getElementById('name').value;
-        const ip = document.getElementById('ip').value;
-        const messageDiv = document.getElementById('message');
-        const secretKeyDiv = document.getElementById('secretKey');
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div>
+                <label for="regkey">Registration Key</label>
+                <input type="text" id="regkey" required>
+            </div>
+            <div>
+                <label for="ipInput">Ip:</label>
+                <input type="text" id="ipInput" required>
+            </div>
+	    <p>Get Registration Key At discord.gg/</p>
+            <button type="submit" id="regBtnMod">Register Domain</button>
+        </div>
+    </div>
 
-        messageDiv.textContent = '';
-        secretKeyDiv.textContent = '';
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-firestore.js"></script>
 
-        const response = await fetch('https://api.3feds.lol/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                key,
-                tld,
-                name,
-                ip
-            })
-        });
-
-        if (response.ok) {
-            const responseData = await response.json();
-            secretKeyDiv.textContent = 'Secret Key: ' + responseData.secret_key;
-            secretKeyDiv.className = 'success';
-            console.log('Secret Key:', responseData.secret_key);
-        } else {
-            const responseData = await response.text();
-            if (response.status === 400) {
-                messageDiv.textContent = responseData;
-                messageDiv.className = 'error';
-            } else if (response.status === 409) {
-                messageDiv.textContent = "Domain already exists";
-                messageDiv.className = 'error';
-            } else {
-                messageDiv.textContent = responseData;
-                messageDiv.className = 'error';
-            }
-        }
-    });
+    <script>
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+        var regBtn = document.getElementById("regBtnMod");
+        var ipInput = document.getElementById("ipInput");
+        var regKey = document.getElementById("regkey");
     
-    document.getElementById('deleteButton').addEventListener('click', async function(event) {
-        event.preventDefault();
-        const key = document.getElementById('deleteKey').value;
-        const deleteMessageDiv = document.getElementById('deleteMessage');
-
-        deleteMessageDiv.textContent = '';
-
-        const response = await fetch('https://api.3feds.lol/delete-domain', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                key
-            })
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzmsk8JIOiY41iijIOhRfKnkJDJ2sXxJk",
+            authDomain: "busswebxdomainregistra.firebaseapp.com",
+            projectId: "busswebxdomainregistra",
+            storageBucket: "busswebxdomainregistra.appspot.com",
+            messagingSenderId: "612010771490",
+            appId: "1:612010771490:web:3eee2fb3dc21c86649b67b",
+            measurementId: "G-M3CMX21HTF"
+        };
+    
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            let tlds = [];
+            const inputField = document.getElementById("doavIn");
+            const checkButton = document.getElementById("doavCheck");
+            const deleteButton = document.getElementById("domDel");
+            const secretInput = document.getElementById("secretIn");
+    
+            checkButton.disabled = true;
+    
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+    
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+    
+            fetch('https://corsproxy.io/?https://api.buss.lol/tlds')
+                .then(response => response.json())
+                .then(data => {
+                    tlds = data;
+                })
+                .catch(error => {
+                    console.error('Error fetching TLDs:', error);
+                });
+    
+            inputField.addEventListener("input", function() {
+                const inputValue = inputField.value;
+                const isValidTLD = tlds.some(tld => inputValue.endsWith(tld));
+                checkButton.disabled = inputValue.length === 0 || !isValidTLD;
+            });
+    
+            secretInput.addEventListener("input", function() {
+                const secretValue = secretInput.value;
+                deleteButton.disabled = secretValue.length !== 24;
+            });
+    
+            checkButton.addEventListener("click", function(event) {
+                event.preventDefault();
+                const inputValue = inputField.value;
+                const [name, tld] = splitDomain(inputValue);
+                checkAvailability(name, tld);
+            });
+    
+            deleteButton.addEventListener("click", function(event) {
+                event.preventDefault();
+                const secret = secretInput.value;
+                deleteDomain(secret);
+            });
+    
+            function splitDomain(domain) {
+                for (let tld of tlds) {
+                    if (domain.endsWith(tld)) {
+                        const name = domain.slice(0, domain.length - tld.length).replace(/\./g, '');
+                        return [name, tld];
+                    }
+                }
+                return [domain.replace(/\./g, ''), ''];
+            }
+    
+            function checkAvailability(name, tld) {
+                const secretres = document.getElementById("secretres");
+                secretres.innerText = "";
+                const alternativeTldsDiv = document.getElementById("alternativeTlds");
+                alternativeTldsDiv.innerHTML = '<h3></h3>';
+                if (name && tld) {
+                    const url = `https://corsproxy.io/?https://api.buss.lol/domain/${name}/${tld}`;
+                    fetch(url)
+                        .then(response => {
+                            if (response.ok) {
+                                displayResult(false, `${name}.${tld}`);
+                                displayAlternativeTLDs(name);
+                            } else {
+                                throw new Error('Domain unavailable');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking domain availability:', error);
+                            displayResult(true, `${name}.${tld}`);
+                        });
+                }
+            }
+    
+            function displayResult(isAvailable, domain) {
+                const resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = isAvailable ? `${domain} is Available.` : `${domain} is Unavailable.`;
+                if (isAvailable) {
+                    const registerButton = document.createElement("button");
+                    registerButton.textContent = "Register";
+                    registerButton.onclick = function() {
+                        modal.style.display = "block";
+                        registerButton.remove();
+                        regBtn.onclick = function() {
+                            const [name, tld] = splitDomain(domain);
+                            const ip = ipInput.value;
+                            const key = regKey.value;
+                            registerDomain(name, tld, ip, key);
+                        };
+                    };
+                    resultDiv.appendChild(registerButton);
+                }
+            }
+    
+            function displayAlternativeTLDs(name) {
+                const alternativeTldsDiv = document.getElementById("alternativeTlds");
+                alternativeTldsDiv.innerHTML = '<h3>But These Domains Are Available</h3>';
+                tlds.forEach(tld => {
+                    const url = `https://corsproxy.io/?https://api.buss.lol/domain/${name}/${tld}`;
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                const domain = `${name}.${tld}`;
+                                const div = document.createElement("div");
+                                div.innerHTML = `${domain} is Available. <button onclick="registerDomain('${name}', '${tld}')">Register</button>`;
+                                alternativeTldsDiv.appendChild(div);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking alternative domain availability:', error);
+                        });
+                });
+            }
+    
+            function registerDomain(name, tld, ip , key) {
+                const proxyUrl = 'https://api.3feds.lol/register'
+                const domainData = {
+                    key,
+                    tld,
+                    name,
+                    ip,
+                };
+    
+                fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        mode: 'no-cors'
+                    },
+                    body: JSON.stringify(domainData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById("result");
+                    const secretres = document.getElementById("secretres");
+                    const msg = `${name}.${tld} Registered Successfully`;
+                    console.log(msg);
+                    resultDiv.innerText = msg;
+                    const secretmsg = `Domain Key: ${data.secret_key} (⚠️ Dont Loose ⚠️)`
+                    console.log(secretmsg);
+                    secretres.innerText = secretmsg;
+                    console.log(data);
+                })
+                .catch(error => {
+                    const resultDiv = document.getElementById("result");
+                    resultDiv.innerText = error;
+                    console.log(error);
+                });
+                alert(`Registering domain: ${name}.${tld}`);
+            }
+    
+            function deleteDomain(secret) {
+                const proxyUrl = 'https://corsproxy.io/?https://api.3feds.lol/delete-domain'
+                const finishUrl = proxyUrl + secret;
+                const delData = {
+                    key: secret
+                };
+                console.log(finishUrl);
+                fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(delData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById("Delresult");
+                    const msg = "Domain Deleted Successfully";
+                    console.log(msg);
+                    resultDiv.innerText = msg;
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+            }
         });
-
-        const responseData = await response.json();
-
-        if (response.ok) {
-            deleteMessageDiv.textContent = responseData.message;
-            deleteMessageDiv.className = 'success';
-        } else if (response.status === 404) {
-            deleteMessageDiv.textContent = 'Invalid key';
-            deleteMessageDiv.className = 'error';
-        } else {
-            deleteMessageDiv.textContent = responseData.message;
-            deleteMessageDiv.className = 'error';
-        }
-    });
 </script>
-
+    
 </body>
 </html>
