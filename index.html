@@ -444,6 +444,7 @@
                     const resultDiv = document.getElementById("result");
                     const secretres = document.getElementById("secretres");
                     const msg = `${name}.${tld} Registered Successfully`;
+		    modal.style.display = "none";
                     console.log(msg);
                     resultDiv.innerText = msg;
                     const secretmsg = `Domain Key: ${data.secret_key} (⚠️ Dont Loose ⚠️)`
