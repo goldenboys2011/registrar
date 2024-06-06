@@ -139,6 +139,11 @@
             padding: 10px;
             transition: background-color 0.3s, color 0.3s;
         }
+        .disabled {
+        pointer-events: none;
+        background-color: gray;
+        color: white;
+        cursor: not-allowed;}
     </style>
 </head>
 <body>
@@ -158,6 +163,8 @@
             <input id="secretIn" placeholder="Enter domain key">
             <button id="domDel" type="button" disabled>Delete Domain</button>
         </form>
+        <br>
+        <br>
         <div id="Delresult" ></div>
     </div>
 
@@ -226,6 +233,8 @@
         var sgnUser = document.getElementById("sgnUser");
         // var regKey = document.getElementById("regkey");
     
+        const registrarSessionToken = sessionStorage.getItem('registrarSessionToken');
+
         const firebaseConfig = {
             apiKey: "AIzaSyBzmsk8JIOiY41iijIOhRfKnkJDJ2sXxJk",
             authDomain: "busswebxdomainregistra.firebaseapp.com",
@@ -280,7 +289,7 @@
     
             secretInput.addEventListener("input", function() {
                 const secretValue = secretInput.value;
-                deleteButton.disabled = secretValue.length !== 24;
+                deleteButton.disabled = secretValue.length !== 31;
             });
     
             checkButton.addEventListener("click", function(event) {
@@ -295,6 +304,12 @@
                 const secret = secretInput.value;
                 deleteDomain(secret);
             });
+
+            function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            }   
     
             function splitDomain(domain) {
                 for (let tld of tlds) {
@@ -307,6 +322,8 @@
             }
     
             function checkAvailability(name, tld) {
+                const resultDiv = document.getElementById("result");
+                resultDiv.innerText = "Loading..."
                 const secretres = document.getElementById("secretres");
                 secretres.innerText = "";
                 const alternativeTldsDiv = document.getElementById("alternativeTlds");
@@ -333,17 +350,31 @@
                 const resultDiv = document.getElementById("result");
                 resultDiv.innerHTML = isAvailable ? `${domain} is Available.` : `${domain} is Unavailable.`;
                 if (isAvailable) {
+                    const sessionToken = getCookie('registrarSessionToken');
                     const registerButton = document.createElement("button");
                     registerButton.textContent = "Register";
                     registerButton.onclick = function() {
-                        // openLogin(true, domain)
-                        modal.style.display = "block";
-                        registerButton.remove();
-                        regBtn.onclick = function() {
-                            const [name, tld] = splitDomain(domain);
-                            const ip = ipInput.value;
-                            registerDomain(name, tld, ip);
-                        };
+                        if (!sessionToken) {
+                                regBtn.disabled = true; 
+                                openLogin()  
+                                modal.style.display = "block";
+                                registerButton.remove();
+                                regBtn.onclick = function() {
+                                    const [name, tld] = splitDomain(domain);
+                                    const ip = ipInput.value;
+                                    registerDomain(name, tld, ip);
+                                };
+                        }
+                        else {
+                            regBtn.disabled = false;
+                            modal.style.display = "block";
+                                registerButton.remove();
+                                regBtn.onclick = function() {
+                                    const [name, tld] = splitDomain(domain);
+                                    const ip = ipInput.value;
+                                    registerDomain(name, tld, ip);
+                                };
+                        }
                     };
                     resultDiv.appendChild(registerButton);
                 }
@@ -369,23 +400,29 @@
                 });
             }
             
-            function openLogin( regAfter , domain) {
+            function openLogin(callback) {
+                var screenWidth = window.screen.width;
+                var screenHeight = window.screen.height;
+                var windowWidth = 700;
+                var windowHeight = 500;
 
-                fetch("", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        
-                    },
-                    body: JSON.stringify(domainData)
-                })
+                var leftPosition = (screenWidth - windowWidth) / 2;
+                var topPosition = (screenHeight - windowHeight) / 2;
 
+                var loginWindow = window.open("/login.html", "Login Little Shit", "width=" + windowWidth + ",height=" + windowHeight + ",top=" + topPosition + ",left=" + leftPosition);
+
+                // Check if the callback is provided and the window object exists
+                if (callback && loginWindow) {
+                    // Poll the window every 500 milliseconds to check if it's closed
+                    var timer = setInterval(function () {
+                        if (loginWindow.closed) {
+                            // Execute the callback function when the window is closed
+                            clearInterval(timer); // Stop polling
+                            callback();
+                        }
+                    }, 500);
+                }
             }
-
-            function openSighnup(regAfter , domain) {
-
-                
-            }           
 
             function registerDomain(name, tld, ip) {
                 const proxyUrl = 'https://cors.themackabu.dev/?https://api.buss.lol/domain'
@@ -420,25 +457,21 @@
                     console.log(error);
                 });
                 alert(`Registering domain: ${name}.${tld}`);
+                modal.style.display = "block";
             }
     
             function deleteDomain(secret) {
-                const proxyUrl = 'https://corsproxy.io/?https://api.3feds.lol/delete-domain'
+                const resultDiv = document.getElementById("Delresult");
+                resultDiv.innerText = "Please Wait :P";
+                const proxyUrl = 'https://corsproxy.io/?https://api.buss.lol/domain/'
                 const finishUrl = proxyUrl + secret;
                 const delData = {
                     key: secret
                 };
                 console.log(finishUrl);
-                fetch(proxyUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(delData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const resultDiv = document.getElementById("Delresult");
+                fetch(finishUrl, {method: 'DELETE'})
+                    // .then(response => response.json())
+                    .then(data => {
                     const msg = "Domain Deleted Successfully";
                     console.log(msg);
                     resultDiv.innerText = msg;
