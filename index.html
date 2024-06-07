@@ -139,14 +139,30 @@
             padding: 10px;
             transition: background-color 0.3s, color 0.3s;
         }
-        .disabled {
-        pointer-events: none;
-        background-color: gray;
-        color: white;
-        cursor: not-allowed;}
+        #user {
+            position: relative;
+            /* display: inline-block; */
+        }
+        #user img {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: scale(0.2); /* Scale down to 30% of the original size */
+            transform-origin: top right; /* Ensure scaling from the top right corner */
+        }
+        #user h2 {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform-origin: top right;  /* Ensure scaling from the top right corner */
+        }
     </style>
 </head>
 <body>
+    <div id="user">
+        <button id="ProfileBtn"><img src='/avatar.png' alt="avatar"></button>
+        <h2>Profile</h2>
+    </div> 
     <div class="container">
         <h1>Domain Registration</h1>
         <form>
@@ -224,13 +240,8 @@
         var sgnmodal = document.getElementById("sgnModal");
         var span = document.getElementsByClassName("close")[0];
         var regBtn = document.getElementById("regBtnMod");
+        var profileBtn = document.getElementById("ProfileBtn");
         var ipInput = document.getElementById("ipInput");
-        var lognBtn = document.getElementById("lognBtnMod");
-        var lognUser = document.getElementById("lognUser");
-        var lognPass = document.getElementById("lognPass");
-        var sgnBtn = document.getElementById("sgnBtnMod");
-        var sgnUser = document.getElementById("sgnUser");
-        var sgnUser = document.getElementById("sgnUser");
         // var regKey = document.getElementById("regkey");
     
         const registrarSessionToken = sessionStorage.getItem('registrarSessionToken');
@@ -267,8 +278,6 @@
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = "none";
-                    sgnmodal.style.display = "none";
-                    lognmodal.style.display = "none";
                 }
             }
     
@@ -303,6 +312,10 @@
                 event.preventDefault();
                 const secret = secretInput.value;
                 deleteDomain(secret);
+            });
+
+            profileBtn.addEventListener("click", function(event) {
+                openProfile();
             });
 
             function getCookie(name) {
@@ -400,7 +413,7 @@
                 });
             }
             
-            function openLogin(callback) {
+            function openLogin() {
                 var screenWidth = window.screen.width;
                 var screenHeight = window.screen.height;
                 var windowWidth = 700;
@@ -411,19 +424,49 @@
 
                 var loginWindow = window.open("/login.html", "Login Little Shit", "width=" + windowWidth + ",height=" + windowHeight + ",top=" + topPosition + ",left=" + leftPosition);
 
-                // Check if the callback is provided and the window object exists
-                if (callback && loginWindow) {
-                    // Poll the window every 500 milliseconds to check if it's closed
-                    var timer = setInterval(function () {
-                        if (loginWindow.closed) {
-                            // Execute the callback function when the window is closed
-                            clearInterval(timer); // Stop polling
-                            callback();
-                        }
-                    }, 500);
-                }
             }
 
+            function openProfile(){
+                var screenWidth = window.screen.width;
+                var screenHeight = window.screen.height;
+                var windowWidth = 700;
+                var windowHeight = 500;
+
+                var leftPosition = (screenWidth - windowWidth) / 2;
+                var topPosition = (screenHeight - windowHeight) / 2;
+
+                var loginWindow = window.open("/loadData.html", "Profile", "width=" + windowWidth + ",height=" + windowHeight + ",top=" + topPosition + ",left=" + leftPosition);
+            }
+
+            function saveKey(secret, name){
+                const sessionToken = getCookie('registrarSessionToken');
+                const proxyUrl = 'https://cors.themackabu.dev/?https://auth.smartlinux.xyz/api/updateJson'
+                // Save Data 
+                const Data = {
+                    "website": "registrar.3feds.lol",
+                    "sessiontoken": sessionToken,
+                    "data": {
+                        domains:{
+                        [name]: secret}},
+                };
+                fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        
+                    },
+                    body: JSON.stringify(Data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+
+
+            }
             function registerDomain(name, tld, ip) {
                 const proxyUrl = 'https://cors.themackabu.dev/?https://api.buss.lol/domain'
                 const domainData = {
@@ -443,14 +486,30 @@
                 .then(data => {
                     const resultDiv = document.getElementById("result");
                     const secretres = document.getElementById("secretres");
-                    const msg = `${name}.${tld} Registered Successfully`;
-		    modal.style.display = "none";
-                    console.log(msg);
-                    resultDiv.innerText = msg;
-                    const secretmsg = `Domain Key: ${data.secret_key} (⚠️ Dont Loose ⚠️)`
-                    console.log(secretmsg);
-                    secretres.innerText = secretmsg;
-                    console.log(data);
+                    if (data.msg == "Failed to create domain"){
+                        const secretmsg = `Failed To Create Domain \n (Invalid name, non-existent TLD, or name too long (100 chars), or empty ip.)`
+                        secretres.innerText = secretmsg;
+                        const msg = `${name}.${tld} Failed To Register`;
+                        resultDiv.innerText = msg;
+                        modal.style.display = "none";
+                    }else if (data.error == "ratelimited_endpoint"){
+                        const secretmsg = data.msg
+                        secretres.innerText = secretmsg;
+                        const msg = `${name}.${tld} Failed To Register`;
+                        resultDiv.innerText = msg;
+                        modal.style.display = "none";
+                    }else{
+                        const msg = `${name}.${tld} Registered Successfully`;
+                        console.log(msg);
+                        resultDiv.innerText = msg;
+                        const secretmsg = `Domain Key: ${data.secret_key} ( Saved On Profile )`
+                        console.log(secretmsg);
+                        secretres.innerText = secretmsg;
+                        console.log(data);
+                        name = ` ${name}.${tld}`
+                        saveKey(data.secret_key, name);
+                        modal.style.display = "none";
+                    }
                 })
                 .catch(error => {
                     const resultDiv = document.getElementById("result");
@@ -458,7 +517,6 @@
                     console.log(error);
                 });
                 alert(`Registering domain: ${name}.${tld}`);
-                modal.style.display = "block";
             }
     
             function deleteDomain(secret) {
@@ -480,6 +538,7 @@
                 })
                 .catch(error => {
                     console.log(error);
+                    resultDiv.innerText = error;
                 });
             }
         });
