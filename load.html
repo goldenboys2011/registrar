@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>load data</title>
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            }   
+
+        const sessionToken = getCookie('registrarSessionToken');
+        const proxyUrl = 'https://cors.themackabu.dev/?https://auth.smartlinux.xyz/api/readJson'
+                const Data = {
+                    "website": "registrar.3feds.lol",
+                    "sessiontoken": sessionToken,
+                };
+                fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        
+                    },
+                    body: JSON.stringify(Data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
