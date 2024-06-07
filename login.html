@@ -138,7 +138,11 @@
             transition: background-color 0.3s, color 0.3s;
         }
     </style>
-    </style>
+    <script>
+        function signUp(){
+            window.open("signup.html","_self")
+        }
+    </script>
 </head>
 <body>
     <div id="borderdiv" class="container">
@@ -154,6 +158,8 @@
         <br>
         <button type="submit" id="loginBtn">Login</button>
     </form>
+    <h3>Need An Account?</h3>
+        <button onclick="signUp()">Sign Up</button>
     </div>
     <script>
                 document.addEventListener('DOMContentLoaded', function () {
