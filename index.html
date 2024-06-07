@@ -230,10 +230,6 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-firestore.js"></script>
-
     <script>
         var modal = document.getElementById("myModal");
         var lognmodal = document.getElementById("lognModal");
@@ -245,16 +241,6 @@
         // var regKey = document.getElementById("regkey");
     
         const registrarSessionToken = sessionStorage.getItem('registrarSessionToken');
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzmsk8JIOiY41iijIOhRfKnkJDJ2sXxJk",
-            authDomain: "busswebxdomainregistra.firebaseapp.com",
-            projectId: "busswebxdomainregistra",
-            storageBucket: "busswebxdomainregistra.appspot.com",
-            messagingSenderId: "612010771490",
-            appId: "1:612010771490:web:3eee2fb3dc21c86649b67b",
-            measurementId: "G-M3CMX21HTF"
-        };
     
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
