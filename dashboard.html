@@ -28,6 +28,54 @@
             });
         }
 
+        function deleteDomain(key, domains) {
+            fetch(`https://cors.themackabu.dev/?https://api.buss.lol/domain/${key}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Domain deleted successfully');
+                    delete domains[key];
+                    updateServerData(domains);
+                } else {
+                    alert('Failed to delete domain');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete domain');
+            });
+        }
+
+        function updateServerData(domains) {
+            const sessionToken = getCookie('registrarSessionToken');
+            const proxyUrl = 'https://auth.smartlinux.xyz/api/writeJson';
+            const Data = {
+                "website": "registrar.3feds.lol",
+                "sessiontoken": sessionToken,
+                "data": { "domains": domains }
+            };
+
+            fetch(proxyUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server data updated:', data);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating server data:', error);
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const sessionToken = getCookie('registrarSessionToken');
             const proxyUrl = 'https://auth.smartlinux.xyz/api/readJson';
@@ -43,67 +91,61 @@
                 },
                 body: JSON.stringify(Data)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server error');
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log(data);
                 const domainsContainer = document.getElementById('domains-container');
-                for (const [name, key] of Object.entries(data.domains)) {
-                    const truncatedName = truncateString(name, 15);
-                    const domainItem = document.createElement('div');
-                    domainItem.classList.add('domain-item');
-                    domainItem.innerHTML = `
-                        <span title="${name}" class="domain-name">${truncatedName}</span>
-                        <input type="password" value="${key}" readonly class="key-input">
-                        <button class="reveal-button">Reveal</button>
-                        <button class="copy-button">Copy Key</button>
-                        <button class="change-ip">Change IP</button>
-                        <button class="delete">Delete</button>
-                    `;
-                    domainsContainer.appendChild(domainItem);
+                const domains = data.domains;
+                if (Object.keys(domains).length === 0 || (Object.keys(domains).length === 1 && domains[""] === "")) {
+                    domainsContainer.innerHTML = `<p>No domains yet</p>`;
+                } else {
+                    for (const [name, key] of Object.entries(domains)) {
+                        const truncatedName = truncateString(name, 15);
+                        const domainItem = document.createElement('div');
+                        domainItem.classList.add('domain-item');
+                        domainItem.innerHTML = `
+                            <span title="${name}" class="domain-name">${truncatedName}</span>
+                            <input type="password" value="${key}" readonly class="key-input">
+                            <button class="reveal-button">Reveal</button>
+                            <button class="copy-button">Copy Key</button>
+                            <button class="change-ip">Change IP</button>
+                            <button class="delete">Delete</button>
+                        `;
+                        domainsContainer.appendChild(domainItem);
 
-                    const revealButton = domainItem.querySelector('.reveal-button');
-                    const keyInput = domainItem.querySelector('.key-input');
-                    const copyButton = domainItem.querySelector('.copy-button');
-                    const deleteButton = domainItem.querySelector('.delete');
+                        const revealButton = domainItem.querySelector('.reveal-button');
+                        const keyInput = domainItem.querySelector('.key-input');
+                        const copyButton = domainItem.querySelector('.copy-button');
+                        const deleteButton = domainItem.querySelector('.delete');
 
-                    revealButton.addEventListener('click', () => {
-                        if (keyInput.type === 'password') {
-                            keyInput.type = 'text';
-                            revealButton.textContent = 'Hide';
-                        } else {
-                            keyInput.type = 'password';
-                            revealButton.textContent = 'Reveal';
-                        }
-                    });
-
-                    copyButton.addEventListener('click', () => {
-                        copyToClipboard(key);
-                    });
-
-                    deleteButton.addEventListener('click', () => {
-                        fetch(`https://corsproxy.io/?https://api.buss.lol/domain/${key}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                alert('Domain deleted successfully');
-                                location.reload();
+                        revealButton.addEventListener('click', () => {
+                            if (keyInput.type === 'password') {
+                                keyInput.type = 'text';
+                                revealButton.textContent = 'Hide';
                             } else {
-                                alert('Failed to delete domain');
+                                keyInput.type = 'password';
+                                revealButton.textContent = 'Reveal';
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Failed to delete domain');
                         });
-                    });
+
+                        copyButton.addEventListener('click', () => {
+                            copyToClipboard(key);
+                        });
+
+                        deleteButton.addEventListener('click', () => {
+                            deleteDomain(key, domains);
+                        });
+                    }
                 }
             })
             .catch(error => {
-                console.log(error);
+                console.error('Error:', error);
+                window.location.href = '/login.html';
             });
         });
     </script>
