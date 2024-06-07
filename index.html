@@ -242,9 +242,6 @@
     
         const registrarSessionToken = sessionStorage.getItem('registrarSessionToken');
     
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-    
         document.addEventListener("DOMContentLoaded", function() {
             let tlds = [];
             const inputField = document.getElementById("doavIn");
