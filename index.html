@@ -5,12 +5,17 @@
     <meta http-equiv="X-UA-Compatible"="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domain Registration</title>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="./css/main.css">
 </head>
 <body>
+    <div id="TopNav">
+        <a href="#AboutPage">About</a>
+        <a href="/dashboard.html">Dashboard</a> <!-- Added onclick event -->
+        <a href="/login.html">Login</a>
+        <a href="/contact">Contact</a>
+    </div>
     <div id="user">
-        <button id="ProfileBtn"><img src='/avatar.png' alt="avatar"></button>
+        <!--- <button id="ProfileBtn"><img src='/avatar.png' alt="avatar"></button> --->
     </div> 
     <div class="container">
         <h1>Domain Registration</h1>
@@ -20,6 +25,14 @@
             <h3 id="secretres"></h3>
         </form>
         <div id="result" class="available-domain"></div>
+            <div id="alternativeTldsMessage">
+                <center>
+                    <h3 id=""></h3>
+                </center>
+            </div>
+        
+        <br>
+        <br>
         <div id="alternativeTlds"></div>
     </div>
     <div class="container">
@@ -78,6 +91,15 @@
             <button type="submit" id="lognBtnModal">Register</button>
         </div>
     </div>
+
+    <footer>
+        © GoldenCube 2024 |
+        <a href="https://www.youtube.com/@goldenCubeGR">YouTube</a> |
+        <a href="https://www.instagram.com/goldencubedev/">Instagram</a> |
+        <a href="https://twitter.com/goldencubeDev">Twitter</a> |
+        <a href="https://www.tiktok.com/@goldencube_official">TikTok</a> |
+        <a href="mailto:info@goldencube.dev">Email</a>
+    </footer>
 
     <script>
         var modal = document.getElementById("myModal");
@@ -190,7 +212,27 @@
                         });
                 }
             }
-    
+            function checkForSession(){
+                regBtn.disabled = true;
+                function repeat(){
+                    const sessionToken = getCookie('registrarSessionToken');
+                    if (!sessionToken) {
+                        console.log("Session Not Found")
+                        regBtn.disabled = true;
+                    }
+                    else{
+                        console.log("Found")
+                        regBtn.disabled = false;
+                        clearInterval(interval);
+                    }
+
+                }
+                if(regBtn.disabled == true){
+                    interval = setInterval(repeat, 300);
+
+                }
+            }
+
             function displayResult(isAvailable, domain) {
                 const resultDiv = document.getElementById("result");
                 resultDiv.innerHTML = isAvailable ? `${domain} is Available.` : `${domain} is Unavailable.`;
@@ -200,7 +242,7 @@
                     registerButton.textContent = "Register";
                     registerButton.onclick = function() {
                         if (!sessionToken) {
-                                regBtn.disabled = true; 
+                                checkForSession();
                                 openLogin()  
                                 modal.style.display = "block";
                                 registerButton.remove();
@@ -224,19 +266,54 @@
                     resultDiv.appendChild(registerButton);
                 }
             }
-    
+            
+
             function displayAlternativeTLDs(name) {
                 const alternativeTldsDiv = document.getElementById("alternativeTlds");
-                alternativeTldsDiv.innerHTML = '<h3>But These Domains Are Available</h3>';
+                const alternativeTldsMessageDiv = document.getElementById("alternativeTldsMessage");
+                alternativeTldsMessageDiv.innerHTML = '<h3>But These Domains Are Available</h3><br> <br>';
+
                 tlds.forEach(tld => {
                     const url = `https://corsproxy.io/?https://api.buss.lol/domain/${name}/${tld}`;
                     fetch(url)
                         .then(response => {
                             if (!response.ok) {
                                 const domain = `${name}.${tld}`;
-                                const div = document.createElement("div");
-                                div.innerHTML = `${domain} is Available. <button onclick="registerDomain('${name}', '${tld}')">Register</button>`;
-                                alternativeTldsDiv.appendChild(div);
+                                const box = document.createElement("div");
+                                box.className = "domain-box";
+
+                                // Create color bar
+                                const colorBar = document.createElement("div");
+                                colorBar.className = "color-bar";
+
+                                // Create domain and button container
+                                const content = document.createElement("div");
+                                content.className = "content";
+
+                                // Create domain text
+                                const domainText = document.createElement("span");
+                                domainText.textContent = `${domain} is Available.`;
+
+                                // Create button element
+                                const button = document.createElement("button");
+                                button.className = "AltTldBtn";
+                                button.textContent = "Register";
+
+                                // Add event listener to button
+                                button.addEventListener("click", function(event) {
+                                    alternativeTldReg(name, tld);
+                                });
+
+                                // Append domain text and button to content container
+                                content.appendChild(domainText);
+                                content.appendChild(button);
+
+                                // Append color bar and content container to box
+                                box.appendChild(colorBar);
+                                box.appendChild(content);
+
+                                // Append box to alternativeTldsDiv
+                                alternativeTldsDiv.appendChild(box);
                             }
                         })
                         .catch(error => {
@@ -244,7 +321,32 @@
                         });
                 });
             }
-            
+
+
+            function alternativeTldReg(name, tld) {
+                const sessionToken = getCookie('registrarSessionToken');
+                if (!sessionToken) {
+                    checkForSession();
+                    openLogin()  
+                    modal.style.display = "block";
+
+                    regBtn.onclick = function() {
+                    const ip = ipInput.value;
+                    registerDomain(name, tld, ip);
+                    }
+                }
+                else{
+                    regBtn.disabled = false;
+                    modal.style.display = "block";
+
+                    regBtn.onclick = function() {
+                        const ip = ipInput.value;
+                        registerDomain(name, tld, ip);
+                }
+                
+                };
+            }
+
             function openLogin() {
                 var screenWidth = window.screen.width;
                 var screenHeight = window.screen.height;
@@ -261,18 +363,18 @@
             function openProfile(){
                 var screenWidth = window.screen.width;
                 var screenHeight = window.screen.height;
-                var windowWidth = 700;
-                var windowHeight = 500;
+                var windowWidth = 750;
+                var windowHeight = 900;
 
                 var leftPosition = (screenWidth - windowWidth) / 2;
                 var topPosition = (screenHeight - windowHeight) / 2;
 
-                var loginWindow = window.location.href = '/dashboard.html';
+                var loginWindow = window.open("/dashboard.html", "Profile", "width=" + windowWidth + ",height=" + windowHeight + ",top=" + topPosition + ",left=" + leftPosition);
             }
 
             function saveKey(secret, name){
                 const sessionToken = getCookie('registrarSessionToken');
-                const proxyUrl = 'https://auth.smartlinux.xyz/api/updateJson'
+                const proxyUrl = 'https://cors.themackabu.dev/?https://auth.smartlinux.xyz/api/updateJson'
                 // Save Data 
                 const Data = {
                     "website": "registrar.3feds.lol",
