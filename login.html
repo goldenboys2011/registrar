@@ -12,6 +12,12 @@
     </script>
 </head>
 <body>
+    <div id="TopNav">
+        <a href="#AboutPage">About</a>
+        <a href="/dashboard.html">Dashboard</a> <!-- Added onclick event -->
+        <a href="/login.html">Login</a>
+        <a href="/contact">Contact</a>
+    </div>
     <div id="borderdiv" class="container">
     <h2>Login</h2>
     <form class="loginForm" id="loginForm">
@@ -28,6 +34,14 @@
     <h3>Need An Account?</h3>
         <button onclick="signUp()">Sign Up</button>
     </div>
+    <footer>
+        © GoldenCube 2024 |
+        <a href="https://www.youtube.com/@goldenCubeGR">YouTube</a> |
+        <a href="https://www.instagram.com/goldencubedev/">Instagram</a> |
+        <a href="https://twitter.com/goldencubeDev">Twitter</a> |
+        <a href="https://www.tiktok.com/@goldencube_official">TikTok</a> |
+        <a href="mailto:info@goldencube.dev">Email</a>
+    </footer>
     <script>
                 document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('loginForm').addEventListener('submit', async function (event) {
