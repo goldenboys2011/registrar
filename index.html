@@ -24,7 +24,8 @@
             <button id="doavCheck" type="button">Check Availability</button>
             <h3 id="secretres"></h3>
         </form>
-        <div id="result" class="available-domain"></div>
+        <div id="result" class="available-domain">
+        </div>
             <div id="alternativeTldsMessage">
                 <center>
                     <!---<h3 id=""></h3> --->
@@ -60,6 +61,22 @@
     
         <h2>Current Updates</h2>
         <p>@miaunescu0 is leaving the project, so @goldenboys2011 will continue with the help of @smartcoder.</p>
+    </div>
+
+    <div class="container" id="CreditsPage">
+        <h1>Credits & Contributors</h1>
+        
+        <h2>Site Made By</h2>
+        <p>@goldenboys2011</p>
+        
+        <h2>Dashboard Made By</h2>
+        <p>@miaunescu0</p>
+        
+        <h2>Authentication API</h2>
+        <p>@smartcoder</p>
+        
+        <h2>Help With Buss API</h2>
+        <p>@_sakura.sx</p>
     </div>
 
     <div id="myModal" class="modal" class="container">
@@ -123,7 +140,6 @@
         var sgnmodal = document.getElementById("sgnModal");
         var span = document.getElementsByClassName("close")[0];
         var regBtn = document.getElementById("regBtnMod");
-        var profileBtn = document.getElementById("ProfileBtn");
         var ipInput = document.getElementById("ipInput");
         // var regKey = document.getElementById("regkey");
     
@@ -184,10 +200,6 @@
                 deleteDomain(secret);
             });
 
-            profileBtn.addEventListener("click", function(event) {
-                openProfile();
-            });
-
             function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
@@ -217,7 +229,7 @@
                         .then(response => {
                             if (response.ok) {
                                 displayResult(false, `${name}.${tld}`);
-                                displayAlternativeTLDs(name);
+                                displayAlternativeTLDs(name, false);
                             } else {
                                 throw new Error('Domain unavailable');
                             }
@@ -225,6 +237,7 @@
                         .catch(error => {
                             console.error('Error checking domain availability:', error);
                             displayResult(true, `${name}.${tld}`);
+                            displayAlternativeTLDs(name, true);
                         });
                 }
             }
@@ -251,6 +264,7 @@
 
             function displayResult(isAvailable, domain) {
                 const resultDiv = document.getElementById("result");
+
                 resultDiv.innerHTML = isAvailable ? `${domain} is Available.` : `${domain} is Unavailable.`;
                 if (isAvailable) {
                     const sessionToken = getCookie('registrarSessionToken');
@@ -284,10 +298,13 @@
             }
             
 
-            function displayAlternativeTLDs(name) {
+            function displayAlternativeTLDs(name, exists) {
                 const alternativeTldsDiv = document.getElementById("alternativeTlds");
                 const alternativeTldsMessageDiv = document.getElementById("alternativeTldsMessage");
-                alternativeTldsMessageDiv.innerHTML = '<h3>But These Domains Are Available</h3><br> <br>';
+                if(exists == true){
+                alternativeTldsMessageDiv.innerHTML = '<h3>Also These Are Available!</h3><br> <br>';
+                }
+                else {alternativeTldsMessageDiv.innerHTML = '<h3>But These Domains Are!</h3><br> <br>';}
 
                 tlds.forEach(tld => {
                     const url = `https://corsproxy.io/?https://api.buss.lol/domain/${name}/${tld}`;
