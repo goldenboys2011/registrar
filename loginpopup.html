@@ -29,6 +29,40 @@
         <button onclick="signUp()">Sign Up</button>
     </div>
     <script>
+                function getCookie(name) {
+                    const value = `; ${document.cookie}`;
+                    const parts = value.split(`; ${name}=`);
+                    if (parts.length === 2) return parts.pop().split(';').shift();
+                }
+                
+                function addNameKey(expirationTime){
+                    const name = document.getElementById('username').value
+                    const sessionToken = getCookie('registrarSessionToken');
+                    const proxyUrl = 'https://cors.themackabu.dev/?https://auth.smartlinux.xyz/api/updateJson'
+                    // Save Data 
+                    const Data = {
+                        "website": "registrar.3feds.lol",
+                        "sessiontoken": sessionToken,
+                        "data": {"name": name , domains:{}},
+                    };
+                    fetch(proxyUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        
+                        },
+                        body: JSON.stringify(Data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        document.cookie = `name=${name}; expires=${expirationTime}; path=/`;
+                    });
+                }
+
                 document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('loginForm').addEventListener('submit', async function (event) {
                 event.preventDefault();
@@ -56,10 +90,9 @@
 
 
                     document.cookie = `registrarSessionToken=${data.hash}; expires=${expirationTime}; path=/`;
-
-                    // sessionStorage.setItem('registrarSessionToken', data.hash);
-                    // localStorage.setItem('registrarUsername', username);
-                    // localStorage.setItem('registrarPassword', password);
+                    
+                    addNameKey();
+                    
                     close()
                 } else {
                     alert('Login failed. Please check your username and password.');
