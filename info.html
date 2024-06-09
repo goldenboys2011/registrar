@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/info.css">
+    <title>Info</title>
+    <script>
+        function toggleList(listId, button) {
+            const list = document.getElementById(listId);
+    
+            if (list.style.display === 'none' || list.style.display === '') {
+                list.style.display = 'block';
+                if (listId == "tlds-list"){
+                    button.innerHTML = 'List of Available TLDs &#x25BC;'; // Arrow right
+                }else{
+                    button.innerHTML = 'List of Banned Words &#x25BC;'; // Arrow right
+                }
+            } else {
+                list.style.display = 'none';
+                if (listId == "tlds-list"){
+                    button.innerHTML = 'List of Available TLDs &#x25B6;'; // Arrow right
+                }else{
+                    button.innerHTML = 'List of Banned Words &#x25B6;'; // Arrow right
+                }
+                
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="TopNav">
+        <a href="/index.html">Home</a>
+        <a href="/dashboard.html">Dashboard</a> <!-- Added onclick event -->
+        <a href="/login.html">Login</a>
+        <a href="/contact">Contact</a>
+    </div>
+    <h1>Domain Registration Info & TOs</h1>
+    
+        <div class="container">
+            
+            <section>
+                <h2 id="black">Buss Webx:</h2>
+            </section>
+            
+            <section class="Sectioncontainer">
+                <h2>TLDs</h2>
+                <strong>
+                <button class="toggle-button" onclick="toggleList('tlds-list', this)">
+                   List of Available TLDs &#x25B6;
+                </button>
+                </strong>
+                <ul id="tlds-list" style="display: none;">
+                    <li>"mf"</li>
+                    <li>"btw"</li>
+                    <li>"fr"</li>
+                    <li>"yap"</li>
+                    <li>"dev"</li>
+                    <li>"scam"</li>
+                    <li>"zip"</li>
+                    <li>"root"</li>
+                    <li>"web"</li>
+                    <li>"rizz"</li>
+                    <li>"habibi"</li>
+                    <li>"sigma"</li>
+                    <li>"now"</li>
+                    <li>"it"</li>
+                    <li>"soy"</li>
+                    <li>"lol"</li>
+                    <li>"uwu"</li>
+                    <li>"ohio"</li>
+                    <li>"cat"</li>
+                </ul>
+            </section>
+            <section class="Sectioncontainer">
+                <h2>Banned Words</h2>
+                <button class="toggle-button" onclick="toggleList('banned-words-list', this)">
+                    List of Banned Words &#x25B6;
+                </button>
+                <ul id="banned-words-list" style="display: none;">
+                    <li>"nigg"</li>
+                    <li>"sex"</li>
+                    <li>"porn"</li>
+                    <li>"igg"</li>
+                </ul>
+            </section>
+        </div>
+        
+        <footer>
+            © GoldenCube 2024 |
+            <a href="https://www.youtube.com/@goldenCubeGR">YouTube</a> |
+            <a href="https://www.instagram.com/goldencubedev/">Instagram</a> |
+            <a href="https://twitter.com/goldencubeDev">Twitter</a> |
+            <a href="https://www.tiktok.com/@goldencube_official">TikTok</a> |
+            <a href="mailto:info@goldencube.dev">Email</a>
+        </footer>
+</body>
+</html>

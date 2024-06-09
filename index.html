@@ -22,6 +22,9 @@
         <form>
             <input id="doavIn" placeholder="Enter domain name">
             <button id="doavCheck" type="button">Check Availability</button>
+            <br>
+            <br>
+            <a href="/info.html">Available Tlds</a>
             <h3 id="secretres"></h3>
         </form>
         <div id="result" class="available-domain">
@@ -38,6 +41,7 @@
     </div>
     <div class="container">
         <h1>Domain Deleter</h1>
+        <h3>⚠️Not Suggested! Use Dashboard⚠️</h3>
         <form>
             <input id="secretIn" placeholder="Enter domain key">
             <button id="domDel" type="button" disabled>Delete Domain</button>
@@ -61,6 +65,11 @@
     
         <h2>Current Updates</h2>
         <p>@miaunescu0 is leaving the project, so @goldenboys2011 will continue with the help of @smartcoder.</p>
+
+        <h2>Domain Info</h2>
+        <div id="InfoBlack">
+        <a href="/info.html">Domain Info</a>
+        </div>
     </div>
 
     <div class="container" id="CreditsPage">
@@ -95,36 +104,6 @@
         </div>
     </div>
 
-    <div id="lognModal" class="modal2" class="container">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div>
-                <label for="lognUser">Username:</label>
-                <input type="text" id="lognUser" required>
-            </div>
-            <div>
-                <label for="lognPass">Password:</label>
-                <input type="password" id="lognPass" required>
-            </div>
-            <button type="submit" id="lognBtnModal">Login</button>
-        </div>
-    </div>
-
-    <div id="sgnModal" class="modal3" class="container">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div>
-                <label for="sgnUser">Username:</label>
-                <input type="text" id="sgnUser" required>
-            </div>
-            <div>
-                <label for="sgnPass">Password:</label>
-                <input type="password" id="sgnPass" required>
-            </div>
-            <button type="submit" id="lognBtnModal">Register</button>
-        </div>
-    </div>
-
     <footer>
         © GoldenCube 2024 |
         <a href="https://www.youtube.com/@goldenCubeGR">YouTube</a> |
@@ -136,8 +115,6 @@
 
     <script>
         var modal = document.getElementById("myModal");
-        var lognmodal = document.getElementById("lognModal");
-        var sgnmodal = document.getElementById("sgnModal");
         var span = document.getElementsByClassName("close")[0];
         var regBtn = document.getElementById("regBtnMod");
         var ipInput = document.getElementById("ipInput");
@@ -489,15 +466,15 @@
             function deleteDomain(secret) {
                 const resultDiv = document.getElementById("Delresult");
                 resultDiv.innerText = "Please Wait :P";
-                const proxyUrl = 'https://corsproxy.io/?https://api.buss.lol/domain/'
-                const finishUrl = proxyUrl + secret;
-                const delData = {
-                    key: secret
-                };
-                console.log(finishUrl);
-                fetch(finishUrl, {method: 'DELETE'})
-                    // .then(response => response.json())
-                    .then(data => {
+                //console.log(finishUrl);
+                fetch(`https://cors.themackabu.dev/?https://api.buss.lol/domain/${secret}`, {
+                    method: 'DELETE',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    }
+                })
+                //.then(response => response.json())
+                .then(data => {
                     const msg = "Domain Deleted Successfully";
                     console.log(msg);
                     resultDiv.innerText = msg;
